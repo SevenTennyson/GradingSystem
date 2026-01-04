@@ -33,31 +33,6 @@ def calculate_overall_score(cw1, cw2, cw3, final_exam): # Multiplies each score 
     overall_score = ((cw1 * 0.10) + (cw2 * 0.20) + (cw3 * 0.30) + (final_exam * 0.40))  
     return overall_score
 
-# Function rounds the overall score to the nearest whole number for categorisation
-def round_to_category(overall_score):
-    categories = [
-        (100, 100),    # Gold Standard
-        (82, 92),      # Upper First
-        (72, 78),      # First
-        (62, 68),      # Upper Second
-        (52, 58),      # Lower Second
-        (42, 48),      # Third
-        (32, 38),      # Condonable Fail
-        (5, 25),       # Fail
-        (0, 0)         # No Submission
-    ]
-
-    for min_score, max_score in categories:
-        if min_score <= overall_score <= max_score:
-            return f"{min_score}-{max_score}"
-
-    return "Unclassified"
-
-print(round_to_category(68.5))  # Example test
-
-# Example: Testing the function test_score = calculate_overall_score(85, 90, 78, 88)
-test_score = calculate_overall_score(85, 90, 78, 88)
-# print("Overall Score:", test_score)
 
 # Function to determine grade category based on overall score
 def determine_grade_category(overall_score): # Returns the grade category as a string
@@ -83,7 +58,85 @@ def determine_grade_category(overall_score): # Returns the grade category as a s
         return "Unclassified"
     
 print(determine_grade_category(68.5))  # Example test
+
+
+# This function rounds the overall score to the nearest whole number for categorisation
+def round_to_category(score): # score is the grade to be categorised
+    categories = [
+        (0, "No Submission"),
+        (5, "Fail"),
+        (15, "Fail"),
+        (25, "Fail"),
+        (32, "Condonable Fail"),
+        (35, "Condonable Fail"),
+        (38, "Condonable Fail"),
+        (42, "Third"),
+        (45, "Third"),
+        (48, "Third"),
+        (52, "Lower Second"),
+        (55, "Lower Second"),
+        (58, "Lower Second"),
+        (62, "Upper Second"),
+        (65, "Upper Second"),
+        (68, "Upper Second"),
+        (72, "First"),
+        (75, "First"),
+        (78, "First"),
+        (82, "Upper First"),
+        (85, "Upper First"),
+        (92, "Upper First"),
+        (100, "Gold Standard")
+    ]
+    
+    if score == 100:
+        return (100, "Gold Standard")
+    if score == 0:
+        return (0, "No Submission")
+    if score < 0 or score > 100:
+        return "Unclassified"
+    
+    nearest_lower = None
+    nearest_upper = None
+    
+    for mark, category in categories:
+        if mark <= score:
+            nearest_lower = (mark, category)
+        elif mark >= score and nearest_upper is None:
+            nearest_upper = (mark, category)
+            break
         
+    if nearest_upper is None:
+        return nearest_lower
+    
+    lower_distance = score - nearest_lower[0]
+    upper_distance = nearest_upper[0] - score
+    
+    # Determine which is closer
+    if lower_distance < upper_distance:
+        return nearest_lower
+    elif upper_distance < lower_distance:
+        return nearest_upper
+    else:
+        # If equidistant, round up
+        return nearest_upper
+    
+    
+    '''
+    for min_score, max_score in categories:
+        if min_score <= score <= max_score:
+            return f"{min_score}-{max_score}"
+        
+
+    return "Unclassified"
+    '''
+
+result = round_to_category(68.5)  # Example test
+print("result: ", result)
+
+# Example: Testing the function test_score = calculate_overall_score(85, 90, 78, 88)
+test_score = calculate_overall_score(85, 90, 78, 88)
+print("Overall Score:", test_score)
+
         
 '''
 The main function collects up to 3 student data entries, 
@@ -108,3 +161,17 @@ def main(name, dob, age, cw1, cw2, cw3, final_exam):
     final_exam = float(input("Enter score for Final Exam (out of 100): "))
     '''
 main("John Doe", "2000-01-01", 24, 85, 90, 78, 88)
+
+
+# Saving student data to .txt file
+# Cleaner code
+with open("student_data.txt", "a") as file:
+    file.write(f"{student_name}, {student_id}, {overall_grade}, {category}\n")
+
+# Open the file in read mode
+with open("student_data.txt", "r") as file:
+    for line in file:
+        # Remove any extra newline characters
+        line = line.strip()
+        print(line)
+        return "Student information saved to student_data.txt"
